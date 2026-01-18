@@ -3,6 +3,7 @@ from pytubefix import Playlist
 import librosa
 import numpy as np
 import supabase
+from time import sleep
 
 from keyfinder import Tonal_Fragment
 
@@ -52,6 +53,8 @@ def main():
         os.remove(audio_file_path)
 
         print(f"Added sample: {video.title} by {video.author}")
+
+        sleep(2)
 
     try:
         client.table("samples").insert(samples_data).execute()
