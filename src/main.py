@@ -21,7 +21,7 @@ samples_data = []
 def main():
     url = "https://youtube.com/playlist?list=PLW4NDfp3IicGyAw0Ix0Z0yr-FL35Eo_qB&si=C5iAT8adl0V1M90c"
 
-    pl = Playlist(url)
+    pl = Playlist(url, 'WEB')
     for video in pl.videos[:40]:  
 
         ys = video.streams.get_audio_only()
