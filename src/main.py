@@ -22,7 +22,7 @@ def main():
     url = "https://youtube.com/playlist?list=PLW4NDfp3IicGyAw0Ix0Z0yr-FL35Eo_qB&si=C5iAT8adl0V1M90c"
 
     pl = Playlist(url)
-    for video in pl.videos[:100]:  
+    for video in pl.videos[:50]:  
 
         ys = video.streams.get_audio_only()
         ys.download(filename=f"{video.title}.m4a")
@@ -38,6 +38,7 @@ def main():
         tags, all_scores = tag_sample(y, sr, bpm)
 
         props = {
+            "yt_id": video.video_id,
             "title": video.title,
             "url": video.watch_url,
             "views": video.views,
@@ -50,16 +51,29 @@ def main():
             "author": video.author,
         }
 
-        samples_data.append(props)
-        os.remove(audio_file_path)
-
-        print(f"Added sample: {video.title} by {video.author}")
+        
+        try: 
+            with open(audio_file_path, "rb") as f:
+                response = (
+                    supabase.storage
+                    .from_("samples")
+                    .upload(
+                        file=f,
+                        path="public/" + video.video_id + ".m4a",
+                        file_options={"cache-control": "3600", "upsert": "false"}
+                    )
+                )
+            samples_data.append(props)
+            print(f"Added sample: {video.title} by {video.author}")
+        except Exception as e:
+            print("Error uploading to Supabase Storage:", e)
+        finally:
+            os.remove(audio_file_path)
 
         sleep(2)
 
     try:
         client.table("samples").insert(samples_data).execute()
-
     except Exception as e:
         print("Error uploading to Supabase:", e)
 
